@@ -1,29 +1,30 @@
 import os 
 import pandas as pd
-import reportlab 
+import datetime 
+import tkinter
+from tkinter import *
+from tkinter import messagebox
 from pathlib import Path
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet as GetSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-import datetime
-
 
 
 class FileExplorer(object):
 
-    def __init__(self, file_name):
-        self.file_name = file_name
+    def __init__(self):
+        self = self
     
-    def read_file(self):
+    def read_file(self, file_name):
 
         # Create an empty list to store the data from the csv file 
         file_contents = []
 
         # Save the filename with the .csv file extension 
-        file_name = self.file_name + ".csv"
+        input_name = file_name + ".csv"
 
         # Create a path to find the given file
-        csv_path = Path.home() / "Downloads" / file_name
+        csv_path = Path.home() / "Downloads" / input_name
 
         # ADD CODE TO CHECK IF FILE EXISTS
         # - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -121,7 +122,12 @@ class Calculate(object):
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             
         # Get the name of the subject of the resource
-        subjects = ["Maths", "English", "Science", "History", "Geography", "Art", "RE", "DT", "PSHE", "SATs Smasher", "Unit Guide", "The Place Value of Punctuation and Grammar", "PVPG", "Model Texts", "SPaG", "Writing", "Reading", "Phonics", "Comprehension Crusher"]
+        subjects = [
+                    "Maths", "English", "Science", "History", "Geography", "Art", "RE", "DT", 
+                    "Spelling with Grammarsaurus", "Sentence Pattern Building", "SATs Smasher", 
+                    "Unit Guide", "The Place Value of Punctuation and Grammar", "PVPG", "Model Texts", 
+                    "SPaG", "Writing", "Reading", "Phonics", "Comprehension Crusher"
+                    ]
 
         for subject in subjects:
 
@@ -142,7 +148,10 @@ class Calculate(object):
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         year_group_count = {}
-        year_groups = ["EYFS", "KS1", "KS2", "Y1", "Y2", "Y3", "Y4", "Y5", "Y6", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"]
+        year_groups = [
+                        "EYFS", "KS1", "KS2", "Y1", "Y2", "Y3", "Y4", "Y5", "Y6", 
+                        "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"
+                      ]  
 
         for year in year_groups:
 
@@ -172,27 +181,29 @@ class Calculate(object):
             
 class GenerateReport(object):
     
-    def __init__(self, download_count, subject_count, year_group_count, file_name):
+    def __init__(self, download_count, subject_count, year_group_count):
         self.download_count = download_count
         self.subject_count = subject_count
         self.year_group_count = year_group_count
-        self.file_name = file_name
+        
 
-    def create_report(self):
+    def create_report(self, report_name):
         
         # Set the name of the document to be create with a .pdf extension
-        report_name = self.file_name + "_Report.pdf"
+        report_name = report_name + ".pdf"
 
         # Create a path to save the report to a folder within the users documents folder
-        report_path = Path.home() / "Documents" / "Download Statistics Reports" / report_name
+        report_path = Path.home() / "Documents" / "Download Statistics Reports"
 
         # Check if the directory exists if not create it
         if not os.path.exists(os.path.dirname(report_path)):
             
             os.makedirs(os.path.dirname(report_path))
 
+        output_path = report_path / report_name
+
         # create an empty list to contain all the elements of the document
-        elements = [[]]
+        elements = []
 
         # Get the styles for the doocument 
         styles = GetSampleStyleSheet()
@@ -221,42 +232,111 @@ class GenerateReport(object):
         # Create the tables for each of the dictionaries and add them to the document elements list
         
         # Resource Download Table
-        download_table_data = [['Resource Name', 'Total Downloads']]
+        download_table_data = [['#','Resource Name', 'Total Downloads']]
 
-        for resource, count in self.download_count.items():
-            download_table_data.append([resource, count])
+        for i, (resource, count) in enumerate(self.download_count.items()):
+            if i > 30:
+                break
+            
+            download_table_data.append([i + 1, resource, count])
+                
 
         download_table = Table(download_table_data)
         download_table.setStyle(table_style)
 
         elements.append(Paragraph("Total Downloads per Resource", styles['Heading2']))
-        elements.append(Spacer(1, 12))
+        
         elements.append(download_table)
-        elements.append(Spacer(1, 24))
+        
 
         # Subject Download Table
         subject_table_data = [['Subject', 'Total Downloads']]
         for subject, count in self.subject_count.items():
             subject_table_data.append([subject, count])
+
         subject_table = Table(subject_table_data)
         subject_table.setStyle(table_style)
         elements.append(Paragraph("Total Downloads per Subject", styles['Heading2']))
-        elements.append(Spacer(1, 12))
+        
         elements.append(subject_table)
-        elements.append(Spacer(1, 24))
+        
 
         
         year_group_table_data = [['Year Group', 'Total Downloads']]
         for year_group, count in self.year_group_count.items():
             year_group_table_data.append([year_group, count])
+
         year_group_table = Table(year_group_table_data)
         year_group_table.setStyle(table_style)
         elements.append(Paragraph("Total Downloads per Year Group", styles['Heading2']))
-        elements.append(Spacer(1, 12))
+        
         elements.append(year_group_table)
-        elements.append(Spacer(1, 24))
+        
 
         # Create the PDF document
-        doc = SimpleDocTemplate(report_path, pagesize=A4)
+        doc = SimpleDocTemplate(str(output_path), pagesize=A4)
         doc.build(elements)
         
+
+class Application(object):
+    
+    def __init__(self):
+        self = self
+    
+    def button_clicked(self, csv_name, report_name):
+        if not csv_name or not report_name:
+            messagebox.showerror("Input Error", "Both fields are required.")
+        
+        else:
+ 
+            # Read the file
+            file_explorer = FileExplorer()
+            contents_list = file_explorer.read_file(csv_name)
+
+            # Calculate the totals
+            calculator = Calculate(contents_list)
+            download_count, subject_count, year_group_count = calculator.total()
+
+            # Generate the report
+            report_generator = GenerateReport(download_count, subject_count, year_group_count)
+            report_generator.create_report(report_name)
+
+            messagebox.showinfo("Success", f"Report '{report_name}_Report.pdf' has been generated successfully in your Documents folder.")
+
+    
+
+    def run(self):
+        
+        master = Tk()
+        master.title("Download Statistics Report Generator")
+        master.geometry("350x250")
+        master.resizable(False, False)
+
+        # Create empty string vairables to store inputs from the user in the application 
+        csv_name = tkinter.StringVar()
+        report_name = tkinter.StringVar()
+
+        # Create a label and entry for the file name
+        report_label = Label(master, text="Please enter the name of the csv file:")
+        report_label.pack()
+
+        report_entry = Entry(master, textvariable= csv_name)
+        report_entry.pack()
+
+        # Create a label and entry for the report name
+        file_label = Label(master, text="Please enter a name for the report:")
+        file_label.pack(padx=5, pady=5)
+
+        file_entry = Entry(master, textvariable= report_name)
+        file_entry.pack(padx=5, pady=5)
+
+        # Create a button to generate the report
+        generate_button = Button(master, text="Generate Report", command=lambda: self.button_clicked(csv_name.get(), report_name.get()))
+        generate_button.pack(pady=20)
+
+        master.mainloop()
+
+
+if __name__ == "__main__":
+    app = Application()
+    app.run()
