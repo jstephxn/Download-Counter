@@ -41,13 +41,28 @@ class StringSplicer(object):
         self = self
         
     def get_subject(self):
-        pass
+        pass # Add code to splice the subject from the string
 
     def get_resource_name(string):
-        pass
+        
+        # Set a blank string to store the name 
+        name = ""
+        
+        # Save the string to a variable called raw_string
+        raw_string = string
+
+        title_index = raw_string.find("Title:") + len("Title:")
+        post_type_index = raw_string.find("Post type:") - 1
+        
+        # Loop through the string and retrieve the resource name
+        for i in range(post_type_index):
+            if title_index <= i <= post_type_index:
+                name += raw_string[i]
+
+        return name
 
     def get_resource_link(self):
-        pass
+        pass # Add code to splice the resource link from the string
 
 class Calculate(object): 
     
