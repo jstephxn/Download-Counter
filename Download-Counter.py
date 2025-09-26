@@ -110,8 +110,6 @@ class Calculate(object):
             resource_name = string_splicer.get_resource_name(item)
             resource_link = string_splicer.get_resource_link(item)
 
-            print(resource_name)
-
             # If the resource name is not already in the dictionary then count how many times it appears in the list
             if resource_name not in download_count:
 
@@ -124,8 +122,6 @@ class Calculate(object):
             else:
 
                 continue
-            print(download_count)
-        print(download_count)
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         # Second calculate the total downloads for each subject 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -190,7 +186,7 @@ class Calculate(object):
         subject_count = dict(sorted(subject_count.items(), key=lambda item: item[1], reverse=True))
         final_year_group_count = dict(sorted(year_group_count.items(), key=lambda item: item[1], reverse=True))
         
-        total_downloads = self.contents_list.__len__()
+        total_downloads = len(self.contents_list)
 
         return download_count, subject_count, final_year_group_count, total_downloads
     
@@ -205,9 +201,12 @@ class Calculate(object):
             long_count = dict.get(long_key, 0)
 
             # Calculate the difference between the two counts
-            combined_count = abs(short_count - long_count) + min(short_count, long_count)
+            if short_count > long_count:
+                combined_count = abs(short_count - long_count) + min(short_count, long_count)
+            else:
+                combined_count = abs(long_count - short_count) + min(short_count, long_count)
 
-            # remive the individual keys from the original dictionary
+            # remove the individual keys from the original dictionary
             if short_key in dict:
                 del dict[short_key]
             dict[f"Year {i}"] = combined_count
@@ -265,6 +264,13 @@ class GenerateReport(object):
         # Add a spacer
         elements.append(Spacer(1, 12))
 
+        # Add the total downloads figure to the elements list
+        total_downloads_para = Paragraph(f"<b>Total Downloads:</b> {self.total_downloads}", wrap_style)
+        elements.append(total_downloads_para)
+        
+        # Add a spacer
+        elements.append(Spacer(1, 12))
+        
         # Create the tables for each of the dictionaries and add them to the document elements list
         
         # Resource Download Table
@@ -335,10 +341,10 @@ class Application(object):
 
             # Calculate the totals
             calculator = Calculate(contents_list)
-            download_count, subject_count, year_group_count = calculator.total()
+            download_count, subject_count, year_group_count, total_downloads = calculator.total()
 
             # Generate the report
-            report_generator = GenerateReport(download_count, subject_count, year_group_count)
+            report_generator = GenerateReport(download_count, subject_count, year_group_count, total_downloads)
             report_generator.create_report(report_name)
 
             messagebox.showinfo("Success", f"Report '{report_name}_Report.pdf' has been generated successfully in your Documents folder.")
@@ -349,7 +355,7 @@ class Application(object):
         
         master = Tk()
         master.title("Download Statistics Report Generator")
-        master.geometry("350x250")
+        master.geometry("250x250")
         master.resizable(False, False)
 
         # Create empty string vairables to store inputs from the user in the application 
