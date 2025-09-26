@@ -157,12 +157,12 @@ class Calculate(object):
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         year_group_count = {}
-        year_groups = [
+        Raw_year_groups = [
                         "EYFS", "KS1", "KS2", "Y1", "Y2", "Y3", "Y4", "Y5", "Y6", 
                         "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"
                       ]  
 
-        for year in year_groups:
+        for year in Raw_year_groups:
 
             if year not in year_group_count:
 
@@ -179,22 +179,49 @@ class Calculate(object):
         # ADD a way to loop through the year groups and add the totals for each key that is the same
         # e.g. Y1 and Year 1
         # Possibly have to look through the counts and subtract the difference as some strings have both Y1 and Year 1 in them
+
+        final_year_group_count = self.calculate_difference(year_group_count)
+
         
+
         # Sort each of the dictionaries from high to low based on the values
 
         download_count = dict(sorted(download_count.items(), key=lambda item: item[1], reverse=True))
         subject_count = dict(sorted(subject_count.items(), key=lambda item: item[1], reverse=True))
-        year_group_count = dict(sorted(year_group_count.items(), key=lambda item: item[1], reverse=True))
+        final_year_group_count = dict(sorted(year_group_count.items(), key=lambda item: item[1], reverse=True))
         
-        return download_count, subject_count, year_group_count
-            
-class GenerateReport(object):
+        total_downloads = self.contents_list.__len__()
+
+        return download_count, subject_count, final_year_group_count, total_downloads
     
-    def __init__(self, download_count, subject_count, year_group_count):
+    # NEEDS TESTING
+    def calculate_difference(self, dict):
+
+        for i in range(1, 7):
+            short_key = f"Y{i}"
+            long_key = f"Year {i}"
+
+            short_count = dict.get(short_key, 0)
+            long_count = dict.get(long_key, 0)
+
+            # Calculate the difference between the two counts
+            combined_count = abs(short_count - long_count) + min(short_count, long_count)
+
+            # remive the individual keys from the original dictionary
+            if short_key in dict:
+                del dict[short_key]
+            dict[f"Year {i}"] = combined_count
+
+        return dict
+
+
+class GenerateReport(object):
+
+    def __init__(self, download_count, subject_count, year_group_count, total_downloads):
         self.download_count = download_count
         self.subject_count = subject_count
         self.year_group_count = year_group_count
-        
+        self.total_downloads = total_downloads
 
     def create_report(self, report_name):
         
