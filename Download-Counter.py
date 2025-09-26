@@ -58,16 +58,14 @@ class StringSplicer(object):
 
         title_index = raw_string.find("Title:") + 6
         post_type_index = raw_string.find("Post Type:") - 1
-        print(title_index)
-        print(post_type_index)
+        
         # Loop through the string and retrieve the resource name
         for i in range(post_type_index):
-            print(i)
+            
             # if i is more than or equal to the title index and less than or equal to the post type index then add the character to the name string
             if title_index <= i <= post_type_index:
                 name += raw_string[i]
-                print(raw_string[i])
-        
+               
         return name
 
     def get_resource_link(self,string):
