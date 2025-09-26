@@ -250,11 +250,11 @@ class GenerateReport(object):
         table_style = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), '#d5dae6'),     # Header background color
             ('TEXTCOLOR', (0, 0), (-1, 0), '#000000'),      # Header text color
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),            # Center align all cells
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),              # Left align all cells
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),           # Header padding
             ('BACKGROUND', (0, 1), (-1, -1), '#f9f9f9'),    # Body background color
-            ('GRID', (0, 0), (-1, -1), 1, '#000000'),       # Grid lines
+            ('GRID', (0, 0), (-1, -1), 1, "#242424"),       # Grid lines
         ])
 
         # Add a title to the document
@@ -278,13 +278,10 @@ class GenerateReport(object):
         
         download_data = self.download_count
 
-        print(download_data.items())
-
         for i, (resource, count) in enumerate(download_data.items()):
             if i > 30:
                 break
-            
-            download_table_data.append([i + 1, resource, count])
+            download_table_data.append([int(i + 1), Paragraph(resource, wrap_style), int(count)])
                 
 
         download_table = Table(download_table_data)
