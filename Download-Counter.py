@@ -44,10 +44,11 @@ class FileExplorer(object):
 class StringSplicer(object):
     
     def __init__(self):
-        self = self
+        pass
 
 
-    def get_resource_name(string):
+    def get_resource_name(self, string):
+        
         
         # Set a blank string to store the name 
         name = ""
@@ -55,17 +56,21 @@ class StringSplicer(object):
         # Save the string to a variable called raw_string
         raw_string = string
 
-        title_index = raw_string.find("Title:") + len("Title:")
-        post_type_index = raw_string.find("Post type:") - 1
-        
+        title_index = raw_string.find("Title:") + 6
+        post_type_index = raw_string.find("Post Type:") - 1
+        print(title_index)
+        print(post_type_index)
         # Loop through the string and retrieve the resource name
         for i in range(post_type_index):
+            print(i)
+            # if i is more than or equal to the title index and less than or equal to the post type index then add the character to the name string
             if title_index <= i <= post_type_index:
                 name += raw_string[i]
-
+                print(raw_string[i])
+        
         return name
 
-    def get_resource_link(string):
+    def get_resource_link(self,string):
         
         # Set a blank string to store the link
         link = ""
@@ -96,15 +101,20 @@ class Calculate(object):
         # First calculate the total downloads for each resource 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+        string_splicer = StringSplicer()
+
         # Create empty dictionary to store the totals with the resource name/ subject as the key and the count as the values 
         download_count = {}
         subject_count = {}
 
         for item in self.contents_list:
-            
-            resource_name = StringSplicer.get_resource_name(item) 
-            resource_link = StringSplicer.get_resource_link(item)
 
+            resource_name = string_splicer.get_resource_name(item)
+            resource_link = string_splicer.get_resource_link(item)
+
+            print(resource_name)
+
+            # If the resource name is not already in the dictionary then count how many times it appears in the list
             if resource_name not in download_count:
 
                 # Count how many times the resource name is fount in the list 
@@ -116,7 +126,8 @@ class Calculate(object):
             else:
 
                 continue
-
+            print(download_count)
+        print(download_count)
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         # Second calculate the total downloads for each subject 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -233,8 +244,12 @@ class GenerateReport(object):
         
         # Resource Download Table
         download_table_data = [['#','Resource Name', 'Total Downloads']]
+        
+        download_data = self.download_count
 
-        for i, (resource, count) in enumerate(self.download_count.items()):
+        print(download_data.items())
+
+        for i, (resource, count) in enumerate(download_data.items()):
             if i > 30:
                 break
             
