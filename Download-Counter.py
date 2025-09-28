@@ -36,6 +36,9 @@ class FileExplorer(object):
             
             file_contents.append(row)
         
+        # Clear the raw data variable to free up memory
+        raw_data = None
+
         return file_contents
     
         # ELSE RETURN ERROR 
@@ -66,6 +69,12 @@ class StringSplicer(object):
             if title_index <= i <= post_type_index:
                 name += raw_string[i]
                
+            # Remove any Semicolons from the name string
+        name = name.replace(";", "")
+
+        # Remove any leading or trailing whitespace from the name string
+        name = name.strip()
+
         return name
 
     def get_resource_link(self,string):
@@ -171,26 +180,25 @@ class Calculate(object):
             else:
 
                 continue
-        
-        # ADD a way to loop through the year groups and add the totals for each key that is the same
-        # e.g. Y1 and Year 1
-        # Possibly have to look through the counts and subtract the difference as some strings have both Y1 and Year 1 in them
 
         final_year_group_count = self.calculate_difference(year_group_count)
-
-        
+        final_subject_count = self.calculate_subject_values(subject_count)
 
         # Sort each of the dictionaries from high to low based on the values
 
         download_count = dict(sorted(download_count.items(), key=lambda item: item[1], reverse=True))
-        subject_count = dict(sorted(subject_count.items(), key=lambda item: item[1], reverse=True))
+        final_subject_count = dict(sorted(subject_count.items(), key=lambda item: item[1], reverse=True))
         final_year_group_count = dict(sorted(year_group_count.items(), key=lambda item: item[1], reverse=True))
         
         total_downloads = len(self.contents_list)
 
-        return download_count, subject_count, final_year_group_count, total_downloads
+        # Clear the contents list to free up memory
+        self.contents_list.clear()
+        self.contents_list = None
+        
+        # Return the three dictionaries and the total downloads figure
+        return download_count, final_subject_count, final_year_group_count, total_downloads
     
-    # NEEDS TESTING
     def calculate_difference(self, dict):
 
         for i in range(1, 7):
@@ -210,6 +218,27 @@ class Calculate(object):
             if short_key in dict:
                 del dict[short_key]
             dict[f"Year {i}"] = combined_count
+
+        return dict
+    
+    def calculate_subject_values(self, dict):
+
+        # In the Data PVPG and The Place Value of Punctuation and Grammar are the same subject so need to be combined
+        if "PVPG" in dict and "The Place Value of Punctuation and Grammar" in dict:
+            
+            dict["The Place Value of Punctuation and Grammar"] += dict["PVPG"]
+            
+            # Remove PVPG from the dictionary
+            del dict["PVPG"]
+        
+        # In the Data The place Value of Punctuation and Grammar and SPaG fall under the same subject so need to subtract The Place Value of Punctuation and Grammar from SPaG
+        if "SPaG" in dict and "The Place Value of Punctuation and Grammar" in dict:
+            
+            dict["SPaG"] -= dict["The Place Value of Punctuation and Grammar"]
+            
+            # Ensure SPaG does not go below 0
+            if dict["SPaG"] < 0:
+                dict["SPaG"] = 0
 
         return dict
 
@@ -279,7 +308,7 @@ class GenerateReport(object):
         download_data = self.download_count
 
         for i, (resource, count) in enumerate(download_data.items()):
-            if i > 30:
+            if i >= 50:
                 break
             download_table_data.append([int(i + 1), Paragraph(resource, wrap_style), int(count)])
                 
