@@ -195,7 +195,7 @@ class Calculate(object):
         # Clear the contents list to free up memory
         self.contents_list.clear()
         self.contents_list = None
-        
+
         # Return the three dictionaries and the total downloads figure
         return download_count, final_subject_count, final_year_group_count, total_downloads
     
@@ -320,6 +320,8 @@ class GenerateReport(object):
         
         elements.append(download_table)
         
+        # Add a spacer
+        elements.append(Spacer(1, 12))
 
         # Subject Download Table
         subject_table_data = [['Subject', 'Total Downloads']]
@@ -331,9 +333,10 @@ class GenerateReport(object):
         elements.append(Paragraph("Total Downloads per Subject", styles['Heading2']))
         
         elements.append(subject_table)
-        
 
-        
+        # Add a spacer
+        elements.append(Spacer(1, 12))
+
         year_group_table_data = [['Year Group', 'Total Downloads']]
         for year_group, count in self.year_group_count.items():
             year_group_table_data.append([year_group, count])
