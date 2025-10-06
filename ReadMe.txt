@@ -1,2 +1,0 @@
-This application is built to assist Grammarsaurus analyse their user download data allowing then to view their top performing resources, subjects, and year groups from what their users are downloading.
-The application uses pandas to read .csv files downloaded from the Grammarsaurus website and reportlab to generate a .pfd containing all the information pulled from the csv.
